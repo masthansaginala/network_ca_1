@@ -1,10 +1,39 @@
-- name: Deploying Docker Container
+- name: Setting up Docker Container with Apache 
   hosts: target-machines
   become: true
 
   tasks:
-    - name: Install Docker dependencies
+    - name: Install Docker.io packages
       package:
         name: docker.io
         state: present
       become: true
+
+    - name: Install the Docker Python module and dependiencies
+      pip:
+        name: docker
+
+    - name: Pull the Apache Docker image
+      shell: docker pull httpd
+      become: true
+      
+    - name: copy the index.html file to the target machine
+      copy:
+        src: "index.html"
+        dest: "/home/kali/Desktop/index.html"
+
+    - name: Subnet for Apache Networking
+      community.docker.docker_network:
+        name: custom_network
+        driver: bridge
+        ipam_config:
+          - subnet: "172.168.10.0/30"
+
+    - name: Run Apache web server using Docker container
+      community.docker.docker_container:
+        name: apache_container
+        image: httpd
+        ports:
+          - "172.168.10.1:80:80"
+        volumes: /home/kali/Desktop:/usr/local/apache2/htdocs/
+        state: started
