@@ -1,0 +1,10 @@
+- name: Deploying Docker Container
+  hosts: target-machines
+  become: true
+
+  tasks:
+    - name: Install Docker dependencies
+      package:
+        name: docker.io
+        state: present
+      become: true

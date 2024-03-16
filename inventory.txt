@@ -1,0 +1,2 @@
+[target-machines]
+172.25.60.170 ansible_user=kali ansible_become_pass=kali
