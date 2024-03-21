@@ -7,20 +7,28 @@
       package:
         name: docker.io
         state: present
-      become: true
 
-    - name: Install the Docker Python module and dependiencies
+    - name: Install the Docker Python module and dependencies
       pip:
         name: docker
 
+    - name: Start Docker service
+      service:
+        name: docker
+        state: started
+
     - name: Pull the Apache Docker image
       shell: docker pull httpd
-      become: true
-      
-    - name: copy the index.html file to the target machine
+
+    - name: Ensure the destination directory exists
+      file:
+        path: "/home/kali/Desktop/network_ca1"
+        state: directory
+
+    - name: Copy the index.html file to the target machine
       copy:
         src: "index.html"
-        dest: "/home/kali/Desktop/index.html"
+        dest: "/home/kali/Desktop/network_ca1/index.html"
 
     - name: Subnet for Apache Networking
       community.docker.docker_network:
@@ -35,5 +43,6 @@
         image: httpd
         ports:
           - "172.168.10.1:80:80"
-        volumes: /home/kali/Desktop:/usr/local/apache2/htdocs/
+        volumes:
+          - "/home/kali/Desktop/network_ca1:/usr/local/apache2/htdocs/"
         state: started
